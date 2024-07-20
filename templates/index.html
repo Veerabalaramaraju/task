@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DynamoDB Sample App</title>
+    <style>
+        @keyframes box-sizing-animation {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            100% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form, .data-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            animation: box-sizing-animation 0.3s forwards;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+
+        form:hover, .data-container:hover {
+            animation: box-sizing-animation 0.3s forwards;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:hover, input[type="text"]:focus {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            border-color: #888;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #dataList p {
+            margin: 5px 0;
+        }
+
+        #dataList hr {
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 10px 0;
+        }
+
+        .data-item {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .data-item:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <h1>DynamoDB Sample App</h1>
+    <form id="dataForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="empID">Employee ID:</label>
+        <input type="text" id="empID" name="empID" required><br><br>
+
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="text" id="phoneNumber" name="phoneNumber" required><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <button onclick="listData()">List Data</button>
+
+    <div id="dataList" class="data-container"></div>
+
+    <script>
+        const form = document.getElementById('dataForm');
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/add', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            alert(result.message);
+        });
+
+        async function listData() {
+            const response = await fetch('/list');
+            const data = await response.json();
+            const dataList = document.getElementById('dataList');
+            dataList.innerHTML = '<h2>Employee Data</h2>';
+            data.forEach(item => {
+                dataList.innerHTML += `
+                    <div class="data-item">
+                        <p>Name: ${item.name}</p>
+                        <p>Employee ID: ${item.empID}</p>
+                        <p>Phone Number: ${item.phoneNumber}</p>
+                        <hr>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
